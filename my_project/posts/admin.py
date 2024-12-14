@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Post
-
+from .models import Post, New, Comment
 
 # Customizing the PostAdmin with advanced features
 class PostAdmin(admin.ModelAdmin):
@@ -39,5 +38,29 @@ class PostAdmin(admin.ModelAdmin):
 
     mark_long_descriptions.short_description = 'Mark posts with long descriptions'
 
-# Registering the Post model with the customized admin
+
+# Customizing the Comment model admin
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at', 'likes', 'text_snippet')  # Display relevant fields in the list view
+    search_fields = ('user__username', 'text')  # Allow search by user and text content
+    list_filter = ('created_at', 'likes')  # Filter by creation date and likes
+    ordering = ('-created_at',)  # Sort by the newest comments first
+    readonly_fields = ('created_at',)  # Make the created_at field read-only
+
+    def text_snippet(self, obj):
+        return obj.text[:50]  # Show a snippet of the comment text (first 50 characters)
+    text_snippet.short_description = 'Comment Snippet'  # Set custom label for the snippet column
+
+
+# Customizing the New model admin
+class NewAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_at', 'is_published')  # Display relevant fields in the list view
+    search_fields = ('title', 'content', 'author')  # Allow search by title, content, and author
+    list_filter = ('created_at', 'is_published')  # Filter by creation date and publication status
+    ordering = ('-created_at',)  # Sort by the newest news first
+    list_editable = ('is_published',)  # Allow inline editing of the publication status in the list view
+
+# Register the models with their customized admin classes
 admin.site.register(Post, PostAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(New, NewAdmin)
